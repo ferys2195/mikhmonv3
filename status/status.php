@@ -38,12 +38,12 @@ $API->connect( $iphost, $userhost, decrypt($passwdhost));
 
 if($uname != ""){
 	$getname = $API->comm("/ip/hotspot/user/print", array("?name" => "$uname"));
-  	$exp = $getname[0]['comment'];
-	if(substr($exp,3,1) == "/" && substr($exp,6,1) == "/"){
+	$exp = $getname[0]['comment'];
+	if((substr($exp,3,1) == "/" && substr($exp,6,1) == "/") || (substr($exp,4,1) == "-" && substr($exp,7,1) == "-")){
 		$exp = $exp;
 	}else{
-	$getname = $API->comm("/sys/sch/print", array("?name" => "$uname"));
-	  $exp = $getname[0]['next-run'];
+		$getname = $API->comm("/sys/sch/print", array("?name" => "$uname"));
+		$exp = $getname[0]['next-run'];
 	}
   
 }

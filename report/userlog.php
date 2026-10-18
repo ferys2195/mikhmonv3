@@ -32,6 +32,28 @@ if (!isset($_SESSION["mikhmon"])) {
 			$API->write('/system/script/print', false);
 			$API->write('?=source=' . $idhr . '');
 			$ARRAY = $API->read();
+			if (count($ARRAY) == 0) {
+				$m_map = array("jan"=>"01","feb"=>"02","mar"=>"03","apr"=>"04","may"=>"05","jun"=>"06","jul"=>"07","aug"=>"08","sep"=>"09","oct"=>"10","nov"=>"11","dec"=>"12");
+				$m_rev = array("01"=>"jan","02"=>"feb","03"=>"mar","04"=>"apr","05"=>"may","06"=>"jun","07"=>"jul","08"=>"aug","09"=>"sep","10"=>"oct","11"=>"nov","12"=>"dec");
+				if (strpos($idhr, "/") !== false) {
+					$parts = explode("/", $idhr);
+					$m_key = strtolower($parts[0]);
+					if (isset($m_map[$m_key])) {
+						$alt_date = $parts[2] . "-" . $m_map[$m_key] . "-" . $parts[1];
+						$API->write('/system/script/print', false);
+						$API->write('?=source=' . $alt_date . '');
+						$ARRAY = $API->read();
+					}
+				} elseif (strpos($idhr, "-") !== false) {
+					$parts = explode("-", $idhr);
+					if (isset($m_rev[$parts[1]])) {
+						$alt_date = $m_rev[$parts[1]] . "/" . $parts[2] . "/" . $parts[0];
+						$API->write('/system/script/print', false);
+						$API->write('?=source=' . $alt_date . '');
+						$ARRAY = $API->read();
+					}
+				}
+			}
 			$API->disconnect();
 		}
 		$filedownload = $idhr;
@@ -112,7 +134,7 @@ if (!isset($_SESSION["mikhmon"])) {
 			<div class="input-group-1 col-box-2">
 			<select style="padding:5px;" class="group-item group-item-l" title="Day" id="D">
         			<?php
-										$day = explode("/", $idhr)[1];
+										$day = (strpos($idhr, "-") !== false) ? explode("-", $idhr)[2] : explode("/", $idhr)[1];
 										if ($day != "") {
 											echo "<option value='" . $day . "'>" . $day . "</option>";
 										}
@@ -134,7 +156,12 @@ if (!isset($_SESSION["mikhmon"])) {
         			<?php 
 										$idbls = array(1 => "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec");
 										$idblf = array(1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
-										$month = explode("/", $idhr)[0];
+										if (strpos($idhr, "-") !== false) {
+											$m_idx = (int)explode("-", $idhr)[1];
+											$month = isset($idbls[$m_idx]) ? $idbls[$m_idx] : "";
+										} else {
+											$month = explode("/", $idhr)[0];
+										}
 										$month1 = substr($idbl, 0, 3);
 
 										if ($month != "") {
@@ -155,7 +182,7 @@ if (!isset($_SESSION["mikhmon"])) {
 			<div class="input-group-2 col-box-3">
 			<select style="padding:5px;" class="group-item group-item-md" title="Year" id="Y">
         			<?php 
-										$year = explode("/", $idhr)[2];
+										$year = (strpos($idhr, "-") !== false) ? explode("-", $idhr)[0] : explode("/", $idhr)[2];
 										$year1 = substr($idbl, 3, 4);
 
 										if ($year != "") {

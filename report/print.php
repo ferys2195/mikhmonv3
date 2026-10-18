@@ -41,7 +41,13 @@ if (!isset($_SESSION["mikhmon"])) {
 
 	$idhr = $_GET['idhr'];
 	$idbl = $_GET['idbl'];
-	$idbl2 = explode("/",$idhr)[0].explode("/",$idhr)[2];
+	if (strpos($idhr, "-") !== false) {
+		$idhr_p = explode("-", $idhr);
+		$m_map = array(1 => "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec");
+		$idbl2 = (isset($m_map[(int)$idhr_p[1]]) ? $m_map[(int)$idhr_p[1]] : "") . $idhr_p[0];
+	} else {
+		$idbl2 = explode("/",$idhr)[0].explode("/",$idhr)[2];
+	}
 	if ($idhr != ""){
 		$_SESSION['report'] = "&idhr=".$idhr;
 	} elseif ($idbl != ""){
@@ -76,7 +82,32 @@ if (!isset($_SESSION["mikhmon"])) {
 					$API->write('/system/script/remove', false);
 					$API->write('=.id=' . $ARREMD[$i]['.id']);
 					$READ = $API->read();
-
+				}
+				$m_map = array("jan"=>"01","feb"=>"02","mar"=>"03","apr"=>"04","may"=>"05","jun"=>"06","jul"=>"07","aug"=>"08","sep"=>"09","oct"=>"10","nov"=>"11","dec"=>"12");
+				$m_rev = array("01"=>"jan","02"=>"feb","03"=>"mar","04"=>"apr","05"=>"may","06"=>"jun","07"=>"jul","08"=>"aug","09"=>"sep","10"=>"oct","11"=>"nov","12"=>"dec");
+				$alt_date = "";
+				if (strpos($idhr, "/") !== false) {
+					$parts = explode("/", $idhr);
+					$m_key = strtolower($parts[0]);
+					if (isset($m_map[$m_key])) {
+						$alt_date = $parts[2] . "-" . $m_map[$m_key] . "-" . $parts[1];
+					}
+				} elseif (strpos($idhr, "-") !== false) {
+					$parts = explode("-", $idhr);
+					if (isset($m_rev[$parts[1]])) {
+						$alt_date = $m_rev[$parts[1]] . "/" . $parts[2] . "/" . $parts[0];
+					}
+				}
+				if ($alt_date != "") {
+					$API->write('/system/script/print', false);
+					$API->write('?source=' . $alt_date . '', false);
+					$API->write('=.proplist=.id');
+					$ARREMD2 = $API->read();
+					for ($i = 0; $i < count($ARREMD2); $i++) {
+						$API->write('/system/script/remove', false);
+						$API->write('=.id=' . $ARREMD2[$i]['.id']);
+						$READ = $API->read();
+					}
 				}
 			}
 		} elseif (strlen($idbl) > "0") {
@@ -109,6 +140,24 @@ if (!isset($_SESSION["mikhmon"])) {
 			$getData = $API->comm("/system/script/print", array(
 				"?source" => "$idhr",
 			));
+			if (count($getData) == 0) {
+				$m_map = array("jan"=>"01","feb"=>"02","mar"=>"03","apr"=>"04","may"=>"05","jun"=>"06","jul"=>"07","aug"=>"08","sep"=>"09","oct"=>"10","nov"=>"11","dec"=>"12");
+				$m_rev = array("01"=>"jan","02"=>"feb","03"=>"mar","04"=>"apr","05"=>"may","06"=>"jun","07"=>"jul","08"=>"aug","09"=>"sep","10"=>"oct","11"=>"nov","12"=>"dec");
+				if (strpos($idhr, "/") !== false) {
+					$parts = explode("/", $idhr);
+					$m_key = strtolower($parts[0]);
+					if (isset($m_map[$m_key])) {
+						$alt_date = $parts[2] . "-" . $m_map[$m_key] . "-" . $parts[1];
+						$getData = $API->comm("/system/script/print", array("?source" => "$alt_date"));
+					}
+				} elseif (strpos($idhr, "-") !== false) {
+					$parts = explode("-", $idhr);
+					if (isset($m_rev[$parts[1]])) {
+						$alt_date = $m_rev[$parts[1]] . "/" . $parts[2] . "/" . $parts[0];
+						$getData = $API->comm("/system/script/print", array("?source" => "$alt_date"));
+					}
+				}
+			}
 			$TotalReg = count($getData);
 		}
 		$filedownload = $idhr;

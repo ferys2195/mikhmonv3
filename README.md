@@ -5,6 +5,11 @@
 
 ### Changelog
 
+#### Update 10-18 2026 V3.21
+1. Perbaikan kompatibilitas MikroTik RouterOS v7 (khususnya 7.10 - 7.19.x ke atas) pada fitur Validity voucher, Expired mode (Remove & Notice), skrip Profile `on-login`, scheduler Monitor Profile (`$bgservice`), status voucher, dan laporan penjualan.
+	- Menjaga kompatibilitas penuh (*dual-compatibility*) dengan RouterOS v6 (`mmm/dd/yyyy`) dan RouterOS v7 (`yyyy-mm-dd`).
+	- Pengguna lama cukup memperbarui User Profile di Mikhmon: buka profil Hotspot kemudian klik **Save** agar script `on-login` dan scheduler monitor di MikroTik otomatis terupdate.
+
 #### Update 06-30 2021 V3.20
 1. Perbaikan typo script profile ```on-login```.
 	- Silakan update user profile dari Mikhmon, dengan cara membuka tiap user profile, kemudian klik Save.
