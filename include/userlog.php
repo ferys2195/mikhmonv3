@@ -27,11 +27,11 @@ if (!isset($_SESSION["mikhmon"])) {
 	$remdata = ($_POST['remdata']);
 
 
+	include_once(__DIR__ . '/../lib/report_helper.php');
+
 	if (strlen($idhr) > "0") {
 		if ($API->connect($iphost, $userhost, decrypt($passwdhost))) {
-			$API->write('/system/script/print', false);
-			$API->write('?=source=' . $idhr . '');
-			$ARRAY = $API->read();
+			$ARRAY = mikhmon_fetch_and_sync_report($API, "", $idhr);
 			$API->disconnect();
 		}
 		$filedownload = $idhr;
@@ -39,19 +39,15 @@ if (!isset($_SESSION["mikhmon"])) {
 		$shd = "text";
 	} elseif (strlen($idbl) > "0") {
 		if ($API->connect($iphost, $userhost, decrypt($passwdhost))) {
-			$API->write('/system/script/print', false);
-			$API->write('?=owner=' . $idbl . '');
-			$ARRAY = $API->read();
+			$ARRAY = mikhmon_fetch_and_sync_report($API, $idbl, "");
 			$API->disconnect();
 		}
 		$filedownload = $idbl;
 		$shf = "hidden";
 		$shd = "text";
-	} elseif ($idhr == "" || $idbl == "") {
+	} else {
 		if ($API->connect($iphost, $userhost, decrypt($passwdhost))) {
-			$API->write('/system/script/print', false);
-			$API->write('?=comment=mikhmon');
-			$ARRAY = $API->read();
+			$ARRAY = mikhmon_fetch_and_sync_report($API, "", "");
 			$API->disconnect();
 		}
 		$filedownload = "all";

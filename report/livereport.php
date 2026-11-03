@@ -64,38 +64,33 @@ include('../lang/'.$langid.'.php');
 
     $_SESSION[$session.'idhr'] = $idhr;
 
-   /* $getSRHr = $API->comm("/system/script/print", array(
-      "?source" => "$idhr",
-    ));
-    $TotalRHr = count($getSRHr);
-    $_SESSION[$session.'totalHr'] = $TotalRHr;*/
-    $getSRBl = $API->comm("/system/script/print", array(
-      "?owner" => "$idbl",
-    ));
+    include_once(__DIR__ . '/../lib/report_helper.php');
+    $getSRBl = mikhmon_fetch_and_sync_report($API, $idbl, "");
     $TotalRBl = count($getSRBl);
     $_SESSION[$session.'totalBl'] = $TotalRBl;
-/*
-    for ($i = 0; $i < $TotalRHr; $i++) {
 
-      $tHr += explode("-|-", $getSRHr[$i]['name'])[3];
+    $tHr = 0;
+    $TotalRHr = 0;
+    $tBl = 0;
 
-    }*/
     foreach($getSRBl as $row){
-    
-      if((explode("-|-", $row['name'])[0]) == $idhr){
-         $tHr += explode("-|-", $row['name'])[3];
-         $TotalRHr += count((array)$row['source']); /*Modif line add (array) by github https://github.com/MasKawer*/
- 
-       }
-       $tBl += explode("-|-", $row['name'])[3];
+      $parsed = mikhmon_get_script_date($row);
+      $rowDate = $parsed ? $parsed['norm_date'] : explode("-|-", $row['name'])[0];
+      $p_parts = explode("-|-", $row['name']);
+      $rowPrice = isset($p_parts[3]) ? (float)$p_parts[3] : 0;
 
-      if($TotalRHr == ""){
-        $TotalRHr = "0";
-        $_SESSION[$session.'totalHr'] = "0";
-      }else{
-        $_SESSION[$session.'totalHr'] = $TotalRHr;
+      if($rowDate == $idhr){
+         $tHr += $rowPrice;
+         $TotalRHr++;
       }
-      
+      $tBl += $rowPrice;
+    }
+
+    if($TotalRHr == ""){
+      $TotalRHr = "0";
+      $_SESSION[$session.'totalHr'] = "0";
+    }else{
+      $_SESSION[$session.'totalHr'] = $TotalRHr;
     }
   }
 }

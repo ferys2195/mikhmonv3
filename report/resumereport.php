@@ -30,8 +30,15 @@ $session = $_GET['session'];
   include('../include/readcfg.php');
 
 $idbl = $_GET['idbl'];
-$thisM = substr($idbl,0,3);
-$thisY = substr($idbl,-4);
+include_once(__DIR__ . '/../lib/report_helper.php');
+$parsed_idbl = mikhmon_parse_date($idbl);
+if ($parsed_idbl) {
+    $thisM = $parsed_idbl['month'];
+    $thisY = $parsed_idbl['year'];
+} else {
+    $thisM = substr($idbl, 0, 3);
+    $thisY = substr($idbl, -4);
+}
 
 $ms = array(1 => "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec");
 $mn = array_search($thisM, $ms);

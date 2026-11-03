@@ -27,33 +27,11 @@ if (!isset($_SESSION["mikhmon"])) {
 	$remdata = ($_POST['remdata']);
 
 
+	include_once(__DIR__ . '/../lib/report_helper.php');
+
 	if (strlen($idhr) > "0") {
 		if ($API->connect($iphost, $userhost, decrypt($passwdhost))) {
-			$API->write('/system/script/print', false);
-			$API->write('?=source=' . $idhr . '');
-			$ARRAY = $API->read();
-			if (count($ARRAY) == 0) {
-				$m_map = array("jan"=>"01","feb"=>"02","mar"=>"03","apr"=>"04","may"=>"05","jun"=>"06","jul"=>"07","aug"=>"08","sep"=>"09","oct"=>"10","nov"=>"11","dec"=>"12");
-				$m_rev = array("01"=>"jan","02"=>"feb","03"=>"mar","04"=>"apr","05"=>"may","06"=>"jun","07"=>"jul","08"=>"aug","09"=>"sep","10"=>"oct","11"=>"nov","12"=>"dec");
-				if (strpos($idhr, "/") !== false) {
-					$parts = explode("/", $idhr);
-					$m_key = strtolower($parts[0]);
-					if (isset($m_map[$m_key])) {
-						$alt_date = $parts[2] . "-" . $m_map[$m_key] . "-" . $parts[1];
-						$API->write('/system/script/print', false);
-						$API->write('?=source=' . $alt_date . '');
-						$ARRAY = $API->read();
-					}
-				} elseif (strpos($idhr, "-") !== false) {
-					$parts = explode("-", $idhr);
-					if (isset($m_rev[$parts[1]])) {
-						$alt_date = $m_rev[$parts[1]] . "/" . $parts[2] . "/" . $parts[0];
-						$API->write('/system/script/print', false);
-						$API->write('?=source=' . $alt_date . '');
-						$ARRAY = $API->read();
-					}
-				}
-			}
+			$ARRAY = mikhmon_fetch_and_sync_report($API, "", $idhr);
 			$API->disconnect();
 		}
 		$filedownload = $idhr;
@@ -61,19 +39,15 @@ if (!isset($_SESSION["mikhmon"])) {
 		$shd = "text";
 	} elseif (strlen($idbl) > "0") {
 		if ($API->connect($iphost, $userhost, decrypt($passwdhost))) {
-			$API->write('/system/script/print', false);
-			$API->write('?=owner=' . $idbl . '');
-			$ARRAY = $API->read();
+			$ARRAY = mikhmon_fetch_and_sync_report($API, $idbl, "");
 			$API->disconnect();
 		}
 		$filedownload = $idbl;
 		$shf = "hidden";
 		$shd = "text";
-	} elseif ($idhr == "" || $idbl == "") {
+	} else {
 		if ($API->connect($iphost, $userhost, decrypt($passwdhost))) {
-			$API->write('/system/script/print', false);
-			$API->write('?=comment=mikhmon');
-			$ARRAY = $API->read();
+			$ARRAY = mikhmon_fetch_and_sync_report($API, "", "");
 			$API->disconnect();
 		}
 		$filedownload = "all";
