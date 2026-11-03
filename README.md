@@ -5,10 +5,13 @@
 
 ### Changelog
 
-#### Update 10-18 2026 V3.21
+#### Update 11-03 2026 V3.21 (ROS7 Compatible)
 1. Perbaikan kompatibilitas MikroTik RouterOS v7 (khususnya 7.10 - 7.19.x ke atas) pada fitur Validity voucher, Expired mode (Remove & Notice), skrip Profile `on-login`, scheduler Monitor Profile (`$bgservice`), status voucher, dan laporan penjualan.
 	- Menjaga kompatibilitas penuh (*dual-compatibility*) dengan RouterOS v6 (`mmm/dd/yyyy`) dan RouterOS v7 (`yyyy-mm-dd`).
 	- Pengguna lama cukup memperbarui User Profile di Mikhmon: buka profil Hotspot kemudian klik **Save** agar script `on-login` dan scheduler monitor di MikroTik otomatis terupdate.
+2. Perbaikan dan optimasi performa Halaman Laporan Penjualan (Selling Report, User Log, Resume Report, & Live Report):
+	- Memperbaiki masalah loading spinner (`lds-dual-ring`) macet akibat query data global dan auto-repair write loop ke router.
+	- Menggunakan mekanisme targeted dual-query langsung ke MikroTik API dan penyeragaman tanggal in-memory di sisi PHP.
 
 #### Update 06-30 2021 V3.20
 1. Perbaikan typo script profile ```on-login```.
